@@ -5,38 +5,81 @@ using System;
 
 public class PlayerController : MonoBehaviour
 {
-    public float speed;
+    public float PlayerSpeed;
+    public float CamSpeed;
+    public float Gravity;
 
     private Rigidbody rb;
+    private Quaternion lookCamera;
+
+    private bool jump = false;
+    private float nextJump = 0.0f;
 	
 	void Start ()
     {
-        rb = GetComponent<Rigidbody> ();        
+        rb = GetComponent<Rigidbody> ();
+        lookCamera = Quaternion.identity;        
+
+        Cursor.visible = false;
 	}
+
+    void Update ()
+    {
+        if (Input.GetButton ("Fire2") && Time.time > nextJump && transform.position.y < 0.42f)
+        {
+            nextJump = Time.time + 0.21f;            
+        }
+    
+        jump = Time.time < nextJump;        
+    }
 	
 	void FixedUpdate ()
     {
         float moveHorizontal = Input.GetAxis ("Horizontal");
-        float moveVertical = Input.GetAxis ("Vertical");
+        float moveVertical = Input.GetAxis ("Vertical");            
 
-        Vector3 movement = new Vector3 (moveHorizontal, 0.0f, moveVertical);       
-        rb.velocity = movement * speed;       
-        //rb.rotation = Quaternion.Euler (0.0f, 0.0f, 0.0f); // variable fix here !!!        
+        Vector3 movement = new Vector3
+        (
+            moveHorizontal, 
+            jump ? 1.0f : 0.0f, 
+            moveVertical
+        );       
+        rb.velocity = movement * PlayerSpeed;
+        rb.rotation = Quaternion.identity;
+
+        rb.AddForce (Physics.gravity * Gravity);
     } 
-    
+        
     void LateUpdate ()
     {
         float lookHorizontal = Input.GetAxis ("Mouse X");
         float lookVertical = Input.GetAxis ("Mouse Y");
 
-        transform.Rotate (new Vector3 (-lookVertical, lookHorizontal, 0.0f));        
-        transform.rotation = Quaternion.Euler
-        (
-            Mathf.Clamp (transform.rotation.eulerAngles.x, -60.0f, 60.0f),
-            //      Mathf.Clamp (transform.rotation.eulerAngles.y, -90.0f, 0.0f),
-            //transform.rotation.eulerAngles.x,
-            transform.eulerAngles.y,
-            0.0f
-        );   
-    }       
+        if (Input.GetButton ("Fire1"))
+        {
+            Vector3 lookCam = new Vector3 (-lookVertical, lookHorizontal, 0.0f) * CamSpeed;
+            lookCamera *= Quaternion.Euler (lookCam);
+            lookCamera = Quaternion.Euler (new Vector3
+            (
+                ClampAngle (lookCamera.eulerAngles.x, 60.0f),
+                ClampAngle (lookCamera.eulerAngles.y, 90.0f),
+                0.0f
+            ));
+        }
+        else
+        {
+            lookCamera = Quaternion.identity;
+        }
+
+        transform.rotation = lookCamera;
+    }
+
+    float ClampAngle (float angle, float deltaMax)
+    {
+        if (angle < 180.0f)
+        {
+            return Mathf.Clamp (angle, 0, deltaMax);
+        }        
+        return Mathf.Clamp (angle, 360.0f - deltaMax, 360.0f);        
+    }   
 }
