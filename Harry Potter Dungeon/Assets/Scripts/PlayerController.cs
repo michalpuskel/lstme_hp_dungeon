@@ -28,8 +28,7 @@ public class PlayerController : MonoBehaviour
         if (Input.GetButton ("Fire2") && Time.time > nextJump && transform.position.y < 0.42f)
         {
             nextJump = Time.time + 0.21f;            
-        }
-    
+        }    
         jump = Time.time < nextJump;        
     }
 	
@@ -38,12 +37,8 @@ public class PlayerController : MonoBehaviour
         float moveHorizontal = Input.GetAxis ("Horizontal");
         float moveVertical = Input.GetAxis ("Vertical");            
 
-        Vector3 movement = new Vector3
-        (
-            moveHorizontal, 
-            jump ? 1.0f : 0.0f, 
-            moveVertical
-        );       
+        Vector3 movement = lookCamera * new Vector3 (moveHorizontal, 0.0f, moveVertical);
+        movement.Set (movement.x, jump ? 1.0f : 0.0f, movement.z);
         rb.velocity = movement * PlayerSpeed;
         rb.rotation = Quaternion.identity;
 
@@ -54,22 +49,15 @@ public class PlayerController : MonoBehaviour
     {
         float lookHorizontal = Input.GetAxis ("Mouse X");
         float lookVertical = Input.GetAxis ("Mouse Y");
-
-        if (Input.GetButton ("Fire1"))
-        {
-            Vector3 lookCam = new Vector3 (-lookVertical, lookHorizontal, 0.0f) * CamSpeed;
-            lookCamera *= Quaternion.Euler (lookCam);
-            lookCamera = Quaternion.Euler (new Vector3
-            (
-                ClampAngle (lookCamera.eulerAngles.x, 60.0f),
-                ClampAngle (lookCamera.eulerAngles.y, 90.0f),
-                0.0f
-            ));
-        }
-        else
-        {
-            lookCamera = Quaternion.identity;
-        }
+       
+        Vector3 lookCam = new Vector3 (-lookVertical, lookHorizontal, 0.0f) * CamSpeed;
+        lookCamera *= Quaternion.Euler (lookCam);
+        lookCamera = Quaternion.Euler (new Vector3
+        (
+            ClampAngle (lookCamera.eulerAngles.x, 60.0f),
+            lookCamera.eulerAngles.y,
+            0.0f
+        ));       
 
         transform.rotation = lookCamera;
     }

@@ -14,7 +14,7 @@ PlayerSettings:
   productName: Harry Potter Dungeon
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
-  m_SplashScreenBackgroundColor: {r: 0.70466554, g: 0.2352941, b: 1, a: 1}
+  m_SplashScreenBackgroundColor: {r: 0.34818336, g: 0.8455882, b: 0.66034776, a: 1}
   m_ShowUnitySplashScreen: 1
   m_ShowUnitySplashLogo: 1
   m_SplashScreenOverlayOpacity: 1
